@@ -12,6 +12,7 @@
 #include <vector>
 #include "Plc.h"
 #include "gPostgreSQL.h"
+#include "uniqueue.h"
 
 struct st_plc_address
 {
@@ -28,7 +29,6 @@ struct st_plc_address
 		memset(cSyncType, NULL, sizeof(char) * 10);
 		memset(cComment, NULL, sizeof(char) * 50);
 	}
-
 };
 
 struct st_plc_read_sch
@@ -50,7 +50,23 @@ struct st_plc_read_sch
 		memset(keyname, NULL, sizeof(char) * 20);
 		memset(cDataTypeDB, NULL, sizeof(char) * 10);
 	}
+};
 
+struct st_plc_data_read
+{
+	int nRead1;
+	int nRead2;
+	int nRead3;
+	int nRead4;
+	char cRead1[20];
+
+	st_plc_data_read() {
+		nRead1 = 0;
+		nRead2 = 0;
+		nRead3 = 0;
+		nRead4 = 0;
+		memset(cRead1, NULL, sizeof(char) * 20);
+	}
 };
 
 using namespace std;
@@ -67,14 +83,18 @@ public:
 	void CPlcManager::ReadPLC();
 	void CPlcManager::WritePLC();
 
-	string CPlcManager::ParsePlcData(short* pPlcData, int nIdxStt, int nIdxBit, int nSize, CString strType);
+	string CPlcManager::ParsePlcData(short* pPlcData, int nIdxStt, int nIdxBit, int nSize, std::string strType);
 	void  CPlcManager::DecodingPlcData(short* pPlcData, int nIdxStt, int nIdxBit, int nSize, CString strType, CString _strValue);
 
 	CString CPlcManager::GetStringDataFromShort(short* pData, int nSize);
 	void CPlcManager::GetShortDataFromString(CString strData, short* pData, int nSize);
 
+	st_plc_data_read* CPlcManager::GetPlcDataReadPointer();
+	void CPlcManager::SetPlcDataRead(std::string strKeyName, std::string strType, std::string strValue);
+
 private:
 	CPlc m_plc;
 	gPostgreSQL m_db;
+	st_plc_data_read m_st_plc_data;
 };
 

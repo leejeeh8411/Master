@@ -34,7 +34,7 @@ vector<st_plc_address> CPlcManager::GetPlcAddressFromDB()
 
 	string strColumn = "synctype";
 	
-	string strQuery = "SELECT address, blocksize, synctype FROM plcaddress";
+	string strQuery = "SELECT addressid, address, blocksize, synctype FROM plcaddress";
 	
 
 	DBResult dbResult = m_db.execute(strQuery);
@@ -42,14 +42,16 @@ vector<st_plc_address> CPlcManager::GetPlcAddressFromDB()
 	if (dbResult.getRowCount() > 0){
 		while (dbResult.hasNext()) {
 			std::vector<DBRow>::iterator itRow = dbResult.fetchRow();
-			int nValue = -1;
-			string strValue;
+			//int nValue = -1;
+			//string strValue;
+			st_plc_address stPlcAddress;
 
-			strValue = itRow->getValue(dbResult.getColumnIndexByName("address"))->getByString();
+			stPlcAddress.blockID = itRow->getValue(dbResult.getColumnIndexByName("addressid"))->getByInteger();
+			strncpy(stPlcAddress.cAddress, itRow->getValue(dbResult.getColumnIndexByName("address"))->getByString(), 10);
+			stPlcAddress.blockSize = itRow->getValue(dbResult.getColumnIndexByName("blocksize"))->getByInteger();
+			strncpy(stPlcAddress.cSyncType, itRow->getValue(dbResult.getColumnIndexByName("synctype"))->getByString(), 10);
 
-			nValue = itRow->getValue(dbResult.getColumnIndexByName("blocksize"))->getByInteger();
-
-			strValue = string(itRow->getValue(dbResult.getColumnIndexByName("synctype"))->getByString());
+			vt_plcAddress.emplace_back(stPlcAddress);
 		}
 	}
 
@@ -60,8 +62,10 @@ vector<st_plc_read_sch> CPlcManager::GetSchFromDB(int nBlockID)
 {
 	vector<st_plc_read_sch> vt_plcReadSch;
 
-	string strQuery = "SELECT addressid, idxstt, idxbit, size, keyname, datatypedb FROM PLCReadSCH WHERE addressid =? ";
-	//strQuery.append(fmt::format(" WHERE {:s} = '{:s}'", strColumn, "read"));
+	string strColumn = "addressid";
+
+	string strQuery = "SELECT addressid, idxstt, size, datatype, keyname FROM plcaddressdetail";
+	strQuery.append(fmt::format(" WHERE {:s} = {:d}", strColumn, nBlockID));
 
 	DBResult dbResult = m_db.execute(strQuery);
 
@@ -73,9 +77,6 @@ vector<st_plc_read_sch> CPlcManager::GetSchFromDB(int nBlockID)
 //PLC받아와야할 전체 read 정보를 처리한다.
 void CPlcManager::ReadPLC()
 {
-	//PLC read데이터를 전반적으로 관리할 구조체
-	//PLC_READ_DATA
-	//map<string, string> map_data;
 
 	vector<st_plc_address> vt_address_data = GetPlcAddressFromDB(); //db에 있는 Plc 어드레스 정보를 읽는다
 
@@ -105,19 +106,45 @@ void CPlcManager::ReadPLC()
 			int nIdxBit = vt_sch_data[j].idxbit;
 			int nSize = vt_sch_data[j].size;
 			std::string strKeyName = vt_sch_data[j].keyname;
-			CString strType = vt_sch_data[j].cDataTypeDB;
+			std::string strType = vt_sch_data[j].cDataTypeDB;
 
 			std::string strVal = ParsePlcData(pPlcData, nSttIdx, nIdxBit, nSize, strType);
 
-			//map_data.insert({ strKeyName, strVal });
-
-			//키를 확인하여 원래 
+			SetPlcDataRead(strKeyName, strType, strVal);
 
 		}
 
 		delete[] pPlcData;
 	}
 }
+
+st_plc_data_read* CPlcManager::GetPlcDataReadPointer()
+{
+	return &m_st_plc_data;
+}
+
+void CPlcManager::SetPlcDataRead(std::string strKeyName, std::string strType, std::string strValue)
+{
+	st_plc_data_read* pStPlcDataRead = GetPlcDataReadPointer();
+
+
+	if (strKeyName == "read int 1") {
+		pStPlcDataRead->nRead1 = std::stoi(strValue);
+	}
+	else if (strKeyName == "read int 2") {
+		pStPlcDataRead->nRead2 = std::stoi(strValue);
+	}
+	else if (strKeyName == "read int 3") {
+		pStPlcDataRead->nRead3 = std::stoi(strValue);
+	}
+	else if (strKeyName == "read int 4") {
+		pStPlcDataRead->nRead4 = std::stoi(strValue);
+	}
+	else if (strKeyName == "read str 1") {
+		strncpy(pStPlcDataRead->cRead1, strValue.c_str(), 20);
+	}
+}
+
 
 void CPlcManager::WritePLC()
 {
@@ -196,7 +223,7 @@ void  CPlcManager::DecodingPlcData(short* pPlcData, int nIdxStt, int nIdxBit, in
 
 
 
-std::string  CPlcManager::ParsePlcData(short* pPlcData, int nIdxStt, int nIdxBit, int nSize, CString strType)
+std::string  CPlcManager::ParsePlcData(short* pPlcData, int nIdxStt, int nIdxBit, int nSize, std::string strType)
 {
 	std::string strRet;
 
@@ -270,4 +297,5 @@ void CPlcManager::GetShortDataFromString(CString strData, short* pData, int nSiz
 		ptrChar[i] = cData;
 	}
 }
+
 
