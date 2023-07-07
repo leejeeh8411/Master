@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "Plc.h"
-#include "DBManager.h"
+
+#include "PlcManager.h"
 
 
 // CMasterDlg 대화 상자
@@ -15,8 +15,8 @@ class CMasterDlg : public CDialogEx
 public:
 	CMasterDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
 
-	CPlc m_plc;
-	CDBManager m_db;
+	
+	
 
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
@@ -30,6 +30,8 @@ public:
 // 구현입니다.
 protected:
 	HICON m_hIcon;
+
+	CPlcManager m_plcManager;
 
 	// 생성된 메시지 맵 함수
 	virtual BOOL OnInitDialog();

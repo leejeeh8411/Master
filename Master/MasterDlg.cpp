@@ -101,21 +101,7 @@ BOOL CMasterDlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
-	//테스트
-	bool bPlcConn = m_plc.Open(1);
-	if (bPlcConn == true) {
-		short shVal = 0;
-		m_plc.ReadBlock("D1000", 2, &shVal);
-		int a = 10;
-	}
-
-	bool bDBConn = m_db.Open("127.0.0.1", "postgres");
-
-	if (bDBConn == true) {
-		DBResult result = m_db.execQuery("select * from PLCaddress");
-
-		int a = 10;
-	}
+	
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }

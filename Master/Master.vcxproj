@@ -191,20 +191,20 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DBManager.h" />
     <ClInclude Include="Master.h" />
     <ClInclude Include="MasterDlg.h" />
     <ClInclude Include="Plc.h" />
+    <ClInclude Include="PlcManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="uniqueue.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DBManager.cpp" />
     <ClCompile Include="Master.cpp" />
     <ClCompile Include="MasterDlg.cpp" />
     <ClCompile Include="Plc.cpp" />
+    <ClCompile Include="PlcManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
