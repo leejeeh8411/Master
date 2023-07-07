@@ -69,7 +69,12 @@ bool CPlc::Open(int nLogicalNum)
 		hr = m_plc->Open(&lRet);
 
 		if (SUCCEEDED(hr)) {
-			bSuccess = true;
+			if (lRet == 0x00) {
+				bSuccess = true;
+			}
+			else {
+				bSuccess = false;
+			}
 		}
 		else {
 			bSuccess = false;

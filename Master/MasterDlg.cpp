@@ -106,6 +106,7 @@ BOOL CMasterDlg::OnInitDialog()
 	if (bPlcConn == true) {
 		short shVal = 0;
 		m_plc.ReadBlock("D1000", 2, &shVal);
+		int a = 10;
 	}
 
 	bool bDBConn = m_db.Open("127.0.0.1", "postgres");
