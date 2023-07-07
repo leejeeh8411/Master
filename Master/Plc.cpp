@@ -1,3 +1,4 @@
+ï»¿
 #include "stdafx.h"
 #include "Plc.h"
 
@@ -18,7 +19,7 @@ void CPlc::Init()
 	/*  Initialize OLE Library                         */
 	if (!AfxOleInit())
 	{
-		//·Î±×·Î ÀûÀÚ
+		//ï¿½Î±×·ï¿½ ï¿½ï¿½ï¿½ï¿½
 		//AfxMessageBox(_T("AfxOleInit() failed."));
 		//return FALSE;
 	}
@@ -26,7 +27,7 @@ void CPlc::Init()
 
 	/* ACT Compornent Instance Create				   */
 	HRESULT hr;
-	
+
 
 #ifdef _WIN64
 	hr = CoCreateInstance(CLSID_ActUtlType64,
@@ -54,7 +55,7 @@ void CPlc::Init()
 	}
 #endif
 
-	
+
 }
 
 bool CPlc::Open(int nLogicalNum)
@@ -62,12 +63,12 @@ bool CPlc::Open(int nLogicalNum)
 	bool bSuccess = false;
 	if (m_bCreatePlcInstance == true) {
 		HRESULT hr;
-		
+
 		long	lRet;
 		m_plc->put_ActLogicalStationNumber(nLogicalNum);
 		hr = m_plc->Open(&lRet);
 
-		if (SUCCEEDED(hr)){
+		if (SUCCEEDED(hr)) {
 			bSuccess = true;
 		}
 		else {
@@ -77,7 +78,7 @@ bool CPlc::Open(int nLogicalNum)
 	return bSuccess;
 }
 
-bool CPlc::ReadBlock(CString strAddress,  int nSize, short* shValue)
+bool CPlc::ReadBlock(CString strAddress, int nSize, short* shValue)
 {
 	bool bSuccess = false;
 	HRESULT hr;

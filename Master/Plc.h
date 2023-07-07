@@ -1,6 +1,5 @@
 #pragma once
 
-
 #ifdef _WIN64
 #include "ActUtlType64_i.h"
 #include "ActUtlType64_i.c"
