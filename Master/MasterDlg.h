@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Plc.h"
+#include "DBManager.h"
 
 
 // CMasterDlg 대화 상자
@@ -15,6 +16,7 @@ public:
 	CMasterDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
 
 	CPlc m_plc;
+	CDBManager m_db;
 
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME

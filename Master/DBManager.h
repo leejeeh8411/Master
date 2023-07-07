@@ -11,8 +11,8 @@ public:
 	CDBManager();
 	~CDBManager();
 
-	/*bool CDBManager::Open(string strDBAddress, string strDBName);
-	DBResult CDBManager::execQuery(string strQuery);*/
+	bool CDBManager::Open(string strDBAddress, string strDBName);
+	DBResult CDBManager::execQuery(string strQuery);
 
 private:
 	gPostgreSQL m_db;
