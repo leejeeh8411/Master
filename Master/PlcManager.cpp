@@ -8,14 +8,28 @@ CPlcManager::CPlcManager()
 	bool bPlcConn = m_plc.Open(1);
 	if (bPlcConn == true) {
 		short shVal = 0;
-		m_plc.ReadBlock("D1000", 2, &shVal);
-		int a = 10;
+
+		shVal = 1;
+		m_plc.WriteBlock("D1000", 1, &shVal);
+
+		shVal = 2;
+		m_plc.WriteBlock("D1001", 1, &shVal);
+
+		shVal = 3;
+		m_plc.WriteBlock("D1002", 1, &shVal);
+
+		shVal = 4;
+		m_plc.WriteBlock("D1003", 1, &shVal);
+
+		shVal = 16706;
+		m_plc.WriteBlock("D1010", 2, &shVal);
+		
 	}
 
 	bool bDBConn = m_db.connect("127.0.0.1", "postgres");
 
 	if (bDBConn == true) {
-		DBResult result = m_db.execute("select * from PLCaddress");
+		//DBResult result = m_db.execute("select * from PLCaddress");
 		ReadPLC();
 		int a = 10;
 	}
@@ -42,8 +56,7 @@ vector<st_plc_address> CPlcManager::GetPlcAddressFromDB()
 	if (dbResult.getRowCount() > 0){
 		while (dbResult.hasNext()) {
 			std::vector<DBRow>::iterator itRow = dbResult.fetchRow();
-			//int nValue = -1;
-			//string strValue;
+			
 			st_plc_address stPlcAddress;
 
 			stPlcAddress.blockID = itRow->getValue(dbResult.getColumnIndexByName("addressid"))->getByInteger();
@@ -68,6 +81,22 @@ vector<st_plc_read_sch> CPlcManager::GetSchFromDB(int nBlockID)
 	strQuery.append(fmt::format(" WHERE {:s} = {:d}", strColumn, nBlockID));
 
 	DBResult dbResult = m_db.execute(strQuery);
+
+	if (dbResult.getRowCount() > 0) {
+		while (dbResult.hasNext()) {
+			std::vector<DBRow>::iterator itRow = dbResult.fetchRow();
+			
+			st_plc_read_sch stPlcReadSch;
+
+			stPlcReadSch.addressid = itRow->getValue(dbResult.getColumnIndexByName("addressid"))->getByInteger();
+			stPlcReadSch.idxstt = itRow->getValue(dbResult.getColumnIndexByName("idxstt"))->getByInteger();
+			stPlcReadSch.size = itRow->getValue(dbResult.getColumnIndexByName("size"))->getByInteger();
+			strncpy(stPlcReadSch.cDataType, itRow->getValue(dbResult.getColumnIndexByName("datatype"))->getByString(), 10);
+			strncpy(stPlcReadSch.keyname, itRow->getValue(dbResult.getColumnIndexByName("keyname"))->getByString(), 10);
+
+			vt_plcReadSch.emplace_back(stPlcReadSch);
+		}
+	}
 
 	return vt_plcReadSch;
 
@@ -103,12 +132,11 @@ void CPlcManager::ReadPLC()
 
 		for (int j = 0; j < nSizeSch; j++) {
 			int nSttIdx = vt_sch_data[j].idxstt;
-			int nIdxBit = vt_sch_data[j].idxbit;
 			int nSize = vt_sch_data[j].size;
 			std::string strKeyName = vt_sch_data[j].keyname;
-			std::string strType = vt_sch_data[j].cDataTypeDB;
+			std::string strType = vt_sch_data[j].cDataType;
 
-			std::string strVal = ParsePlcData(pPlcData, nSttIdx, nIdxBit, nSize, strType);
+			std::string strVal = ParsePlcData(pPlcData, nSttIdx, 0, nSize, strType);
 
 			SetPlcDataRead(strKeyName, strType, strVal);
 
@@ -172,10 +200,10 @@ void CPlcManager::WritePLC()
 
 		for (int j = 0; j < nSizeSch; j++) {
 			int nSttIdx = vt_sch_data[j].idxstt;
-			int nIdxBit = vt_sch_data[j].idxbit;
+			//int nIdxBit = vt_sch_data[j].idxbit;
 			int nSize = vt_sch_data[j].size;
 			std::string strKeyName = vt_sch_data[j].keyname;
-			CString strType = vt_sch_data[j].cDataTypeDB;
+			CString strType = vt_sch_data[j].cDataType;
 
 			//키에 해당하는 값을 가져온다.
 			//std::string strValue = GetValue("키값");
