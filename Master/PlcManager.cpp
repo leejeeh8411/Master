@@ -1,44 +1,130 @@
 #include "stdafx.h"
 #include "PlcManager.h"
 
+gLogger syslog("syslog", std::string("D:\\log") + std::string("syslog.txt"), true, 1024 * 1024 * 5, 5);
 
-CPlcManager::CPlcManager()
+
+
+void WorkRead(CPlcManager* pParent)
 {
-	//테스트
-	bool bPlcConn = m_plc.Open(1);
-	if (bPlcConn == true) {
-		short shVal = 0;
-
-		shVal = 1;
-		m_plc.WriteBlock("D1000", 1, &shVal);
-
-		shVal = 2;
-		m_plc.WriteBlock("D1001", 1, &shVal);
-
-		shVal = 3;
-		m_plc.WriteBlock("D1002", 1, &shVal);
-
-		shVal = 4;
-		m_plc.WriteBlock("D1003", 1, &shVal);
-
-		shVal = 16706;
-		m_plc.WriteBlock("D1010", 2, &shVal);
-		
+	while (true) {
+		pParent->ReadPLC();
+		Sleep(pParent->GetReadTime());
 	}
+}
 
-	bool bDBConn = m_db.connect("127.0.0.1", "postgres");
+void WorkWrite(CPlcManager* pParent)
+{
+	while (true) {
+		pParent->WritePLC();
+		Sleep(pParent->GetWriteTime());
+	}
+}
 
-	if (bDBConn == true) {
-		//DBResult result = m_db.execute("select * from PLCaddress");
-		ReadPLC();
-		int a = 10;
+//test thread
+void readTestFunc(CPlcManager* pParent)
+{
+	while (true) {
+		pParent->ReadTest();
+		Sleep(10);
 	}
 }
 
 
+CPlcManager::CPlcManager()
+{
+
+	bool bPlcConn = m_plc.Open(1);
+	
+	bool bDBConn = m_db.connect("127.0.0.1", "postgres");
+
+	//test
+	bool bTestMode = true;
+	if (bTestMode == true) {
+		InitTestSet();
+	}
+	else {
+		//read,write thread 생성
+		thread t1 = thread(WorkRead, this);
+		t1.join();
+
+		thread t2 = thread(WorkWrite, this);
+		t2.join();
+	}
+
+	SetReadTime(100);
+	SetWriteTime(100);
+}
+
 CPlcManager::~CPlcManager()
 {
 
+}
+
+void CPlcManager::InitTestSet()
+{
+	short shVal = 0;
+
+	shVal = 1;
+	m_plc.WriteBlock("D1000", 1, &shVal);
+
+	shVal = 2;
+	m_plc.WriteBlock("D1001", 1, &shVal);
+
+	shVal = 3;
+	m_plc.WriteBlock("D1002", 1, &shVal);
+
+	shVal = 4;
+	m_plc.WriteBlock("D1003", 1, &shVal);
+
+	shVal = 16706;
+	m_plc.WriteBlock("D1010", 2, &shVal);
+
+	thread t1 = thread(readTestFunc, this);
+	t1.join();
+
+	thread t2 = thread(readTestFunc, this);
+	t2.join();
+
+	thread t3 = thread(readTestFunc, this);
+	t3.join();
+
+	thread t4 = thread(readTestFunc, this);
+	t4.join();
+}
+
+void CPlcManager::ReadTest()
+{
+	int nBlockSize = 4;
+	//힙 할당
+	short* pPlcData = new short[nBlockSize];
+	memset(pPlcData, 0, sizeof(short) * nBlockSize);
+
+	m_plc.ReadBlock("D1000", nBlockSize, pPlcData); //힙영역 할당후 Heap포인터와 Size를 전달하여 plc로부터 data를 받는다
+
+	syslog.info("read:D1000, value 1~4:{},{},{},{}", pPlcData[0], pPlcData[1], pPlcData[2], pPlcData[3]);
+
+	delete[] pPlcData;
+}
+
+void CPlcManager::SetReadTime(int nMilleSecond)
+{
+	m_nTimeRead = nMilleSecond;
+}
+
+void CPlcManager::SetWriteTime(int nMilleSecond)
+{
+	m_nTimeWrite = nMilleSecond;
+}
+
+int CPlcManager::GetReadTime()
+{
+	return m_nTimeRead;
+}
+
+int CPlcManager::GetWriteTime()
+{
+	return m_nTimeWrite;
 }
 
 vector<st_plc_address> CPlcManager::GetPlcAddressFromDB()
@@ -146,6 +232,7 @@ void CPlcManager::ReadPLC()
 	}
 }
 
+//plc read 데이터를 보관할 구조체를 가져온다
 st_plc_data_read* CPlcManager::GetPlcDataReadPointer()
 {
 	return &m_st_plc_data;
@@ -155,7 +242,8 @@ void CPlcManager::SetPlcDataRead(std::string strKeyName, std::string strType, st
 {
 	st_plc_data_read* pStPlcDataRead = GetPlcDataReadPointer();
 
-
+	//아래는 db 키에 대해 변수 어디에다 넣을지
+	//edit하면 됩니다
 	if (strKeyName == "read int 1") {
 		pStPlcDataRead->nRead1 = std::stoi(strValue);
 	}
@@ -200,7 +288,6 @@ void CPlcManager::WritePLC()
 
 		for (int j = 0; j < nSizeSch; j++) {
 			int nSttIdx = vt_sch_data[j].idxstt;
-			//int nIdxBit = vt_sch_data[j].idxbit;
 			int nSize = vt_sch_data[j].size;
 			std::string strKeyName = vt_sch_data[j].keyname;
 			CString strType = vt_sch_data[j].cDataType;

@@ -13,6 +13,10 @@
 #include "Plc.h"
 #include "gPostgreSQL.h"
 #include "uniqueue.h"
+#include <thread>
+#include "gLogger.h"
+extern gLogger syslog;
+
 
 struct st_plc_address
 {
@@ -48,6 +52,9 @@ struct st_plc_read_sch
 	}
 };
 
+
+//plc에서 받은 데이터를 구조체로 관리한다.
+//각 공정에 맞는 구조체로 수정하여 사용하세요.
 struct st_plc_data_read
 {
 	int nRead1;
@@ -76,6 +83,9 @@ public:
 	vector<st_plc_read_sch> CPlcManager::GetSchFromDB(int nBlockID);
 	vector<st_plc_address> CPlcManager::GetPlcAddressFromDB();
 
+	void CPlcManager::InitTestSet();
+	void CPlcManager::ReadTest();
+
 	void CPlcManager::ReadPLC();
 	void CPlcManager::WritePLC();
 
@@ -88,9 +98,17 @@ public:
 	st_plc_data_read* CPlcManager::GetPlcDataReadPointer();
 	void CPlcManager::SetPlcDataRead(std::string strKeyName, std::string strType, std::string strValue);
 
+	void CPlcManager::SetReadTime(int nMilleSecond);
+	void CPlcManager::SetWriteTime(int nMilleSecond);
+	int CPlcManager::GetReadTime();
+	int CPlcManager::GetWriteTime();
+
 private:
 	CPlc m_plc;
 	gPostgreSQL m_db;
 	st_plc_data_read m_st_plc_data;
+
+	int m_nTimeRead = 100;
+	int m_nTimeWrite = 100;
 };
 
