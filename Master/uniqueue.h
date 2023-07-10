@@ -244,7 +244,7 @@ public:
 		cv_.notify_one();
 	}
 
-	bool GetData(std::string* strRet, OBJ1& obj1)
+	bool GetData(OBJ1& obj1, std::string* strRet)
 	{
 		std::unique_lock<std::shared_mutex> sl(sm_);
 
@@ -252,6 +252,25 @@ public:
 
 		if (con_.find(obj1) != con_.end()) {
 			(*strRet) = con_[obj1];
+			bRet = true;
+		}
+		else {
+			bRet = false;
+		}
+
+		cv_.notify_one();
+
+		return bRet;
+	}
+
+	bool SetData(OBJ1& obj1, std::string strVal)
+	{
+		std::unique_lock<std::shared_mutex> sl(sm_);
+
+		bool bRet = false;
+
+		if (con_.find(obj1) != con_.end()) {
+			con_[obj1] = strVal;
 			bRet = true;
 		}
 		else {

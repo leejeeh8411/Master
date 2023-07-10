@@ -18,19 +18,21 @@
 extern gLogger syslog;
 
 
+const static int STRING_LENGTH = 20;
+
 struct st_plc_address
 {
 	int blockID;
-	char cAddress[10];
+	char cAddress[STRING_LENGTH];
 	int blockSize;
-	char cSyncType[10];
+	char cSyncType[STRING_LENGTH];
 	char cComment[50];
 
 	st_plc_address() {
 		blockID = 0;
-		memset(cAddress, NULL, sizeof(char) * 10);
+		memset(cAddress, NULL, sizeof(char) * STRING_LENGTH);
 		blockSize = 0;
-		memset(cSyncType, NULL, sizeof(char) * 10);
+		memset(cSyncType, NULL, sizeof(char) * STRING_LENGTH);
 		memset(cComment, NULL, sizeof(char) * 50);
 	}
 };
@@ -40,15 +42,15 @@ struct st_plc_read_sch
 	int addressid;
 	int idxstt;
 	int size;
-	char keyname[20];
-	char cDataType[10];
+	char keyname[STRING_LENGTH];
+	char cDataType[STRING_LENGTH];
 
 	st_plc_read_sch() {
 		addressid = 0;
 		idxstt = 0;
 		size = 0;
-		memset(keyname, NULL, sizeof(char) * 20);
-		memset(cDataType, NULL, sizeof(char) * 10);
+		memset(keyname, NULL, sizeof(char) * STRING_LENGTH);
+		memset(cDataType, NULL, sizeof(char) * STRING_LENGTH);
 	}
 };
 
@@ -61,16 +63,17 @@ struct st_plc_data_read
 	int nRead2;
 	int nRead3;
 	int nRead4;
-	char cRead1[20];
+	char cRead1[STRING_LENGTH];
 
 	st_plc_data_read() {
 		nRead1 = 0;
 		nRead2 = 0;
 		nRead3 = 0;
 		nRead4 = 0;
-		memset(cRead1, NULL, sizeof(char) * 20);
+		memset(cRead1, NULL, sizeof(char) * STRING_LENGTH);
 	}
 };
+
 
 using namespace std;
 
@@ -90,25 +93,34 @@ public:
 	void CPlcManager::WritePLC();
 
 	string CPlcManager::ParsePlcData(short* pPlcData, int nIdxStt, int nIdxBit, int nSize, std::string strType);
-	void  CPlcManager::DecodingPlcData(short* pPlcData, int nIdxStt, int nIdxBit, int nSize, CString strType, CString _strValue);
+	void  CPlcManager::DecodingPlcData(short* pPlcData, int nIdxStt, int nSize, CString strType, CString _strValue);
 
 	CString CPlcManager::GetStringDataFromShort(short* pData, int nSize);
 	void CPlcManager::GetShortDataFromString(CString strData, short* pData, int nSize);
 
 	st_plc_data_read* CPlcManager::GetPlcDataReadPointer();
+	CUniMap <string, string>* CPlcManager::GetPlcDataWritePointer();
 	void CPlcManager::SetPlcDataRead(std::string strKeyName, std::string strType, std::string strValue);
+	void CPlcManager::InsertPlcWriteData(string keyName, string value);
+	bool CPlcManager::GetWriteDataPlcValue(string keyName, string& value);
 
-	void CPlcManager::SetReadTime(int nMilleSecond);
-	void CPlcManager::SetWriteTime(int nMilleSecond);
-	int CPlcManager::GetReadTime();
-	int CPlcManager::GetWriteTime();
+	void CPlcManager::SetPlcPeriodTime(int nMilleSecond);
+	int CPlcManager::GetPlcPeriodTime();
+
+	bool CPlcManager::GetConnPlc();
+	bool CPlcManager::GetConnDB();
+
+	void CPlcManager::SetConnPlc(bool bSet);
+	void CPlcManager::SetConnDB(bool bSet);
 
 private:
 	CPlc m_plc;
+	bool bConnPLC = false;
 	gPostgreSQL m_db;
-	st_plc_data_read m_st_plc_data;
+	bool bConnDB = false;
+	st_plc_data_read m_st_plc_data_read;
+	CUniMap <string, string> m_map_plc_data_write;
 
-	int m_nTimeRead = 100;
-	int m_nTimeWrite = 100;
+	int m_nTimePlcPeriod = 100;
 };
 
