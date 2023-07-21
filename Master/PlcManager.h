@@ -10,11 +10,25 @@
 #pragma once
 
 #include <vector>
-#include "Plc.h"
 #include "gPostgreSQL.h"
 #include "uniqueue.h"
 #include <thread>
 #include "gLogger.h"
+#include "InterfacePlc.h"
+#include "PlcMel.h"
+#include "PlcMelOptic.h"
+
+enum PLCTYPE
+{
+	//PLC Type
+	//0 : mitsubishi lan type
+	//1 : mitsubishi optic type
+	//2 : siemens
+	PLCTYPE_MEL_LAN,
+	PLCTYPE_MEL_OPTIC,
+	PLCTYPE_SIEMENS
+};
+
 extern gLogger syslog;
 
 
@@ -86,6 +100,8 @@ public:
 	vector<st_plc_read_sch> CPlcManager::GetSchFromDB(int nBlockID);
 	vector<st_plc_address> CPlcManager::GetPlcAddressFromDB();
 
+	void CPlcManager::Init(int nPlcType);
+
 	void CPlcManager::InitTestSet();
 	void CPlcManager::ReadTest();
 
@@ -114,7 +130,14 @@ public:
 	void CPlcManager::SetConnDB(bool bSet);
 
 private:
-	CPlc m_plc;
+
+	//instance pointer
+	CInterfacePlc* m_plc;
+
+	//instance
+	CPlcMel m_plc_lan;
+	CPlcMelOptic m_plc_optic;
+
 	bool bConnPLC = false;
 	gPostgreSQL m_db;
 	bool bConnDB = false;
@@ -122,5 +145,7 @@ private:
 	CUniMap <string, string> m_map_plc_data_write;
 
 	int m_nTimePlcPeriod = 100;
+
+	
 };
 

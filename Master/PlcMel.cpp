@@ -1,6 +1,5 @@
-﻿
-#include "stdafx.h"
-#include "Plc.h"
+﻿#include "stdafx.h"
+#include "PlcMel.h"
 
 #ifdef _WIN64
 #include "ActUtlType64_i.c"
@@ -8,31 +7,28 @@
 #include "ActUtlType_i.c"
 #endif
 
-CPlc::CPlc()
+
+CPlcMel::CPlcMel()
 {
-	Init();
+	Create();
 }
 
 
-CPlc::~CPlc()
+CPlcMel::~CPlcMel()
 {
+	Close();
 }
 
-void CPlc::Init()
+void CPlcMel::Create()
 {
-	/***************************************************/
 	/*  Initialize OLE Library                         */
-	if (!AfxOleInit())
-	{
-		//�α׷� ����
+	if (!AfxOleInit()){
 		//AfxMessageBox(_T("AfxOleInit() failed."));
 		//return FALSE;
 	}
-	/***************************************************/
 
 	/* ACT Compornent Instance Create				   */
 	HRESULT hr;
-
 
 #ifdef _WIN64
 	hr = CoCreateInstance(CLSID_ActUtlType64,
@@ -60,10 +56,9 @@ void CPlc::Init()
 	}
 #endif
 
-
 }
 
-bool CPlc::Open(int nLogicalNum)
+bool CPlcMel::Open(int nLogicalNum)
 {
 	bool bSuccess = false;
 	if (m_bCreatePlcInstance == true) {
@@ -88,7 +83,26 @@ bool CPlc::Open(int nLogicalNum)
 	return bSuccess;
 }
 
-bool CPlc::ReadBlock(CString strAddress, int nSize, short* shValue)
+bool CPlcMel::Close()
+{
+	bool bSuccess = false;
+	HRESULT hr;
+	long	lRet;
+
+	hr = m_plc->Close(&lRet);
+
+	if (SUCCEEDED(hr)) {
+		if (lRet == 0x00) {
+			bSuccess = true;
+		}
+	}
+	else {
+		bSuccess = false;
+	}
+	return bSuccess;
+}
+
+bool CPlcMel::ReadBlock(CString strAddress, int nSize, short* shValue)
 {
 	bool bSuccess = false;
 	HRESULT hr;
@@ -108,7 +122,7 @@ bool CPlc::ReadBlock(CString strAddress, int nSize, short* shValue)
 	return bSuccess;
 }
 
-bool CPlc::WriteBlock(CString strAddress, int nSize, short* shValue)
+bool CPlcMel::WriteBlock(CString strAddress, int nSize, short* shValue)
 {
 	bool bSuccess = false;
 	HRESULT hr;

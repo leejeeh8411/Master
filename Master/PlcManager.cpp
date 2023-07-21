@@ -28,9 +28,31 @@ void readTestFunc(CPlcManager* pParent)
 CPlcManager::CPlcManager()
 {
 
-	bool bPlcConn = m_plc.Open(1);
-	SetConnPlc(bPlcConn);
+}
+
+CPlcManager::~CPlcManager()
+{
 	
+}
+
+void CPlcManager::Init(int nPlcType)
+{
+
+	if (nPlcType == PLCTYPE_MEL_LAN) {
+		m_plc = &m_plc_lan;
+		bool bPlcConn = m_plc->Open(1);
+		SetConnPlc(bPlcConn);
+	}
+	else if (nPlcType == PLCTYPE_MEL_OPTIC) {
+		m_plc = &m_plc_optic;
+		bool bPlcConn = m_plc->Open(1, 1, 141);
+		//SetConnPlc(bPlcConn);
+		SetConnPlc(true);
+	}
+	else if (nPlcType == PLCTYPE_SIEMENS) {
+
+	}
+
 	bool bDBConn = m_db.connect("127.0.0.1", "postgres");
 	SetConnDB(bDBConn);
 
@@ -46,11 +68,7 @@ CPlcManager::CPlcManager()
 		thread t1 = thread(WorkReadWrite, this);
 		t1.detach();
 	}
-}
 
-CPlcManager::~CPlcManager()
-{
-	
 }
 
 bool CPlcManager::GetConnPlc()
@@ -73,25 +91,24 @@ void CPlcManager::SetConnDB(bool bSet)
 	bConnDB = bSet;
 }
 
-
 void CPlcManager::InitTestSet()
 {
 	short shVal = 0;
 
 	shVal = 1;
-	m_plc.WriteBlock("D1000", 1, &shVal);
+	m_plc->WriteBlock("D1000", 1, &shVal);
 
 	shVal = 2;
-	m_plc.WriteBlock("D1001", 1, &shVal);
+	m_plc->WriteBlock("D1001", 1, &shVal);
 
 	shVal = 3;
-	m_plc.WriteBlock("D1002", 1, &shVal);
+	m_plc->WriteBlock("D1002", 1, &shVal);
 
 	shVal = 4;
-	m_plc.WriteBlock("D1003", 1, &shVal);
+	m_plc->WriteBlock("D1003", 1, &shVal);
 
 	shVal = 16706;
-	m_plc.WriteBlock("D1010", 2, &shVal);
+	m_plc->WriteBlock("D1010", 2, &shVal);
 
 	thread t1 = thread(readTestFunc, this);
 	t1.detach();
@@ -117,7 +134,7 @@ void CPlcManager::ReadTest()
 	short* pPlcData = new short[nBlockSize];
 	memset(pPlcData, 0, sizeof(short) * nBlockSize);
 
-	m_plc.ReadBlock("D1000", nBlockSize, pPlcData); //힙영역 할당후 Heap포인터와 Size를 전달하여 plc로부터 data를 받는다
+	m_plc->ReadBlock("D1000", nBlockSize, pPlcData); //힙영역 할당후 Heap포인터와 Size를 전달하여 plc로부터 data를 받는다
 
 	syslog.info("read:D1000, value 1~4:{},{},{},{}", pPlcData[0], pPlcData[1], pPlcData[2], pPlcData[3]);
 
@@ -222,7 +239,7 @@ void CPlcManager::ReadPLC()
 		short* pPlcData = new short[nBlockSize];
 		memset(pPlcData, 0, sizeof(short) * nBlockSize);
 
-		m_plc.ReadBlock(strAddress, nBlockSize, pPlcData); //힙영역 할당후 Heap포인터와 Size를 전달하여 plc로부터 data를 받는다
+		m_plc->ReadBlock(strAddress, nBlockSize, pPlcData); //힙영역 할당후 Heap포인터와 Size를 전달하여 plc로부터 data를 받는다
 
 		std::vector<st_plc_read_sch> vt_sch_data = GetSchFromDB(nBlockID); //plc block 데이터 명세 정보 가져옴
 
@@ -351,7 +368,7 @@ void CPlcManager::WritePLC()
 			}
 		}
 
-		m_plc.WriteBlock(strAddress, nBlockSize, pPlcData);
+		m_plc->WriteBlock(strAddress, nBlockSize, pPlcData);
 
 
 		delete[] pPlcData;

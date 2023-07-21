@@ -92,12 +92,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>C:\MELSEC\Act\Include;$(gLib)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MELSEC\Act\Include;$(gLib)\include;C:\MELSEC\Common\INCLUDE;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(gLib)\$(PlatformTarget)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gloggerd.lib;gPostgreSQLd.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(gLib)\$(PlatformTarget);C:\MELSEC\Common\LIB</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gloggerd.lib;gPostgreSQLd.lib;MdFunc32.lib;</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -117,12 +117,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>C:\MELSEC\Act\Include\Wrapper;$(gLib)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MELSEC\Act\Include\Wrapper;$(gLib)\include;C:\MELSEC\Common\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(gLib)\$(PlatformTarget)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gloggerd.lib;gPostgreSQLd.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(gLib)\$(PlatformTarget);C:\MELSEC\Common\LIB\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gloggerd.lib;gPostgreSQLd.lib;MdFunc32.lib;</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -193,8 +193,10 @@
   <ItemGroup>
     <ClInclude Include="Master.h" />
     <ClInclude Include="MasterDlg.h" />
-    <ClInclude Include="Plc.h" />
+    <ClInclude Include="InterfacePlc.h" />
     <ClInclude Include="PlcManager.h" />
+    <ClInclude Include="PlcMel.h" />
+    <ClInclude Include="PlcMelOptic.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -203,8 +205,10 @@
   <ItemGroup>
     <ClCompile Include="Master.cpp" />
     <ClCompile Include="MasterDlg.cpp" />
-    <ClCompile Include="Plc.cpp" />
+    <ClCompile Include="InterfacePLC.cpp" />
     <ClCompile Include="PlcManager.cpp" />
+    <ClCompile Include="PlcMel.cpp" />
+    <ClCompile Include="PlcMelOptic.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -33,13 +33,19 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Plc.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="uniqueue.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="PlcManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PlcMel.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PlcMelOptic.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfacePlc.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,10 +59,16 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Plc.cpp">
+    <ClCompile Include="PlcManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="PlcManager.cpp">
+    <ClCompile Include="PlcMel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PlcMelOptic.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="InterfacePLC.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
