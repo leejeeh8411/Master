@@ -47,7 +47,8 @@ bool CPlcMelOptic::Close()
 	return bSuccess;
 }
 
-//ex:W200 
+//W200  W:Word Data Area, Address:200
+//B200  B:Bit Data Area, Address:200
 bool CPlcMelOptic::ReadBlock(CString strAddress, int nSize, short* shValue)
 {
 	bool bSuccess = false;
@@ -55,21 +56,29 @@ bool CPlcMelOptic::ReadBlock(CString strAddress, int nSize, short* shValue)
 	short ret;
 	LONG size = nSize;
 
-	//test code
-	CString strHexExam = "200";
-	strAddress = strHexExam;
-	long lExam = 0x0200;
+	CString dataArea = strAddress.Left(1);
+	CString address = strAddress.Mid(1, strAddress.GetLength()-1);
 
 	long lAddress = 0;
 
 	// String to Hex
-	int nAddress = 0;
 	char* ch;
-	ch = strAddress.GetBuffer(strAddress.GetLength());
+	ch = address.GetBuffer(address.GetLength());
 	std::stringstream convert(ch);
 	convert >> std::hex >> lAddress;
 
-	ret = mdReceiveEx(m_nChannelNo, m_nNetworkNo, m_nStationNo, DevW, lAddress, &size, shValue);
+	long lArea = 0;
+	if (dataArea == "W") {
+		lArea = DevW;
+	}
+	else if (dataArea == "B") {
+		lArea = DevB;
+	}
+	else {
+		lArea = DevW;
+	}
+
+	ret = mdReceiveEx(m_nChannelNo, m_nNetworkNo, m_nStationNo, lArea, lAddress, &size, shValue);
 
 	return bSuccess;
 }
@@ -81,16 +90,29 @@ bool CPlcMelOptic::WriteBlock(CString strAddress, int nSize, short* shValue)
 	short ret;
 	LONG size = nSize;
 
+	CString dataArea = strAddress.Left(1);
+	CString address = strAddress.Mid(1, strAddress.GetLength() - 1);
+
 	long lAddress = 0;
 
 	// String to Hex
-	int nAddress = 0;
 	char* ch;
-	ch = strAddress.GetBuffer(strAddress.GetLength());
+	ch = address.GetBuffer(address.GetLength());
 	std::stringstream convert(ch);
 	convert >> std::hex >> lAddress;
 
-	//ret = mdSendEx(m_nChannelNo, m_nNetworkNo, m_nStationNo, DevW, lAddress, &size, pdata);
+	long lArea = 0;
+	if (dataArea == "W") {
+		lArea = DevW;
+	}
+	else if (dataArea == "B") {
+		lArea = DevB;
+	}
+	else {
+		lArea = DevW;
+	}
+
+	ret = mdSendEx(m_nChannelNo, m_nNetworkNo, m_nStationNo, lArea, lAddress, &size, shValue);
 
 	return bSuccess;
 }

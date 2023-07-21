@@ -46,19 +46,24 @@ void CPlcManager::Init(int nPlcType)
 	else if (nPlcType == PLCTYPE_MEL_OPTIC) {
 		m_plc = &m_plc_optic;
 		bool bPlcConn = m_plc->Open(1, 1, 141);
-		//SetConnPlc(bPlcConn);
-		SetConnPlc(true);
+		SetConnPlc(bPlcConn);
+
+		////test***********************************
+		//short* pData[10];
+		//memset(pData, NULL, sizeof(short) * 10);
+		//SetConnPlc(true);
+		//m_plc->ReadBlock("B200", 1, pData[0]);
+		////test***********************************
 	}
 	else if (nPlcType == PLCTYPE_SIEMENS) {
-
+		//개발예정
 	}
 
 	bool bDBConn = m_db.connect("127.0.0.1", "postgres");
 	SetConnDB(bDBConn);
-
 	SetPlcPeriodTime(100);
 
-	//test
+	//test mode
 	bool bTestMode = false;
 	if (bTestMode == true) {
 		InitTestSet();
@@ -68,7 +73,6 @@ void CPlcManager::Init(int nPlcType)
 		thread t1 = thread(WorkReadWrite, this);
 		t1.detach();
 	}
-
 }
 
 bool CPlcManager::GetConnPlc()
@@ -253,7 +257,7 @@ void CPlcManager::ReadPLC()
 
 			std::string strVal = ParsePlcData(pPlcData, nSttIdx, 0, nSize, strType);
 
-			SetPlcDataRead(strKeyName, strType, strVal);
+			SetPlcReadData(strKeyName, strType, strVal);
 
 		}
 		delete[] pPlcData;
@@ -261,7 +265,7 @@ void CPlcManager::ReadPLC()
 	syslog.info("plc read");
 }
 
-//plc read 데이터를 보관할 구조체를 가져온다
+
 st_plc_data_read* CPlcManager::GetPlcDataReadPointer()
 {
 	return &m_st_plc_data_read;
@@ -273,7 +277,7 @@ CUniMap <string, string>* CPlcManager::GetPlcDataWritePointer()
 }
 
 
-void CPlcManager::SetPlcDataRead(std::string strKeyName, std::string strType, std::string strValue)
+void CPlcManager::SetPlcReadData(std::string strKeyName, std::string strType, std::string strValue)
 {
 	st_plc_data_read* pStPlcDataRead = GetPlcDataReadPointer();
 
